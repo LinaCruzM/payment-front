@@ -2,11 +2,9 @@
   <div class="main">
     <div class="box">
       <div class="inner-box">
-        <div class="img">
-
-        </div>
+        <div class="img"></div>
         <div class="forms-wrap">
-          <form @submit.prevent="login" class="login-form">
+          <form @submit.prevent="submitForm" class="login-form">
             <div class="logo">
               <img src="@/assets/logo.png" alt="Logo inmarket">
             </div>
@@ -18,22 +16,20 @@
             <div class="actual-form">
               <div class="input-wrap">
                 <input type="text" class="input-field" v-model="email" 
-                :class="{ active: isActive('email') || email.length > 0 }" @focus="activateField('email')" 
-                  @blur="deactivateField('email')" required>
-                <span v-if="!emailIsValid">Correo electrónico no válido</span>
+                  :class="{ active: isActive('email') || email.length > 0 }" 
+                  @focus="activateField('email')" @blur="deactivateField('email')" required>
                 <label class="label" :class="{ 'has-content': email.length > 0 }">
                   Correo electrónico
                 </label>
               </div>
               <div class="input-wrap">
-                  <input class="input-field" v-model="password" :type="showPassword ? 'text' : 'password'"
-                  :class="{ active: isActive('password') || password.length > 0 }" @focus="activateField('password')" 
-                  @blur="deactivateField('password')" required>
-                  <span v-if="!passwordIsValid">La contraseña debe tener al menos 8 caracteres</span>
-                  <label class="label" :class="{ 'has-content': password.length > 0 }">
-                    Contraseña
-                  </label>
-                    <i class="bi eye-btn" :class="showPassword ? 'bi-eye-slash' : 'bi-eye'" @click="togglePasswordVisibility"></i>
+                <input class="input-field" v-model="password" :type="showPassword ? 'text' : 'password'"
+                  :class="{ active: isActive('password') || password.length > 0 }" 
+                  @focus="activateField('password')" @blur="deactivateField('password')" required>
+                <label class="label" :class="{ 'has-content': password.length > 0 }">
+                  Contraseña
+                </label>
+                <i class="bi eye-btn" :class="showPassword ? 'bi-eye-slash' : 'bi-eye'" @click="togglePasswordVisibility"></i>
               </div>
               <input type="submit" class="login-btn" value="Inicia sesión">
             </div>
@@ -41,14 +37,22 @@
         </div>
       </div>
     </div>
-    </div>
+    <ModalComponent :show="showModal" @close="showModal = false">
+      <div v-if="!emailIsValid">Correo electrónico no válido</div>
+      <div v-if="!passwordIsValid">La contraseña debe tener entre 8 y 15 caracteres, al menos una letra mayúscula, un número y un carácter especial</div>
+    </ModalComponent>
+  </div>
 </template>
-  
+
 <script>
 import { ref } from 'vue';
+import ModalComponent from '@/components/ModalComponent.vue';
 
 export default {
-  name: 'HomeView',
+  name: 'LoginView',
+  components: {
+    ModalComponent
+  },
   setup() {
     const email = ref('');
     const password = ref('');
@@ -86,7 +90,9 @@ export default {
     };
 
     const validatePassword = () => {
-      passwordIsValid.value = password.value.length >= 8;
+      // Validación de contraseña: 8-15 caracteres, al menos una letra mayúscula, un número y un carácter especial
+      const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,15}$/;
+      passwordIsValid.value = passwordPattern.test(password.value);
     };
 
     const submitForm = () => {
@@ -95,6 +101,8 @@ export default {
 
       if (emailIsValid.value && passwordIsValid.value) {
         console.log('Formulario válido');
+        // Aquí puedes realizar la lógica de inicio de sesión
+        // Por ejemplo: enviar los datos al servidor o encriptar la contraseña con crypto-js
       }
     };
 
@@ -174,7 +182,7 @@ export default {
   text-align: center;
 }
 
-.actual-form{
+.actual-form {
   width: 80%;
 }
 
@@ -283,18 +291,17 @@ export default {
   border-radius: 0.5rem;
   font-size: .9rem;
   transition: 0.3s;
-  }
+}
 
-.login-btn:hover{
+.login-btn:hover {
   background-color: #049DD9;
 }
 
-.eye-btn{
+.eye-btn {
   height: 20px;
   margin-left: -20px;
   padding: 0;
   color: #929292;
   cursor: pointer;
 }
-
 </style>
