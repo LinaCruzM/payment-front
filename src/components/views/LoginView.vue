@@ -47,87 +47,87 @@
 </template>
 
 <script>
-import { ref } from 'vue';
-import ModalComponent from '@/components/ModalComponent.vue';
+  import { ref } from 'vue';
+  import CryptoJS from 'crypto-js';
+  import ModalComponent from '@/components/ModalComponent.vue';
 
-export default {
-  name: 'LoginView', components: {
-    ModalComponent 
-  },
-  setup() {
-    const email = ref('');
-    const password = ref('');
-    const activeField = ref(null);
-    const showPassword = ref(false);
-    const emailIsValid = ref(true);
-    const passwordIsValid = ref(true);
-    const showModal = ref(false);
+  export default {
+    name: 'LoginView', 
+    components: {
+      ModalComponent 
+    },
+    setup() {
+      const email = ref('');
+      const password = ref('');
+      const activeField = ref(null);
+      const showPassword = ref(false);
+      const emailIsValid = ref(true);
+      const passwordIsValid = ref(true);
+      const showModal = ref(false);
 
-    const login = () => {
-      console.log(email.value);
-      console.log(password.value);
-    };
+      const activateField = (field) => {
+        activeField.value = field;
+      };
 
-    const activateField = (field) => {
-      activeField.value = field;
-    };
+      const deactivateField = (field) => {
+        if (!email.value && field === 'email' || !password.value && field === 'password') {
+          activeField.value = null;
+        }
+      };
 
-    const deactivateField = (field) => {
-      if (!email.value && field === 'email' || !password.value && field === 'password') {
-        activeField.value = null;
-      }
-    };
+      const isActive = (field) => {
+        return activeField.value === field;
+      };
 
-    const isActive = (field) => {
-      return activeField.value === field;
-    };
+      const togglePasswordVisibility = () => {
+        showPassword.value = !showPassword.value;
+      };
 
-    const togglePasswordVisibility = () => {
-      showPassword.value = !showPassword.value;
-    };
+      const validateEmail = () => {
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        emailIsValid.value = emailPattern.test(email.value);
+      };
 
-    const validateEmail = () => {
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      emailIsValid.value = emailPattern.test(email.value);
-    };
+      const validatePassword = () => {
+        const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,15}$/;
+        passwordIsValid.value = passwordPattern.test(password.value);
+      };
 
-    const validatePassword = () => {
-      const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,15}$/;
-      passwordIsValid.value = passwordPattern.test(password.value);
-    };
+      const submitForm = () => {
+        validateEmail();
+        validatePassword();
 
-    const submitForm = () => {
-      validateEmail();
-      validatePassword();
+        if (emailIsValid.value && passwordIsValid.value) {
+          const encryptedPassword = CryptoJS.AES.encrypt(password.value, 'your-secret-key').toString();
 
-      if (emailIsValid.value && passwordIsValid.value) {
-        console.log('Formulario válido');
-        // Aquí puedes realizar la lógica de inicio de sesión
-        // Por ejemplo: enviar los datos al servidor o encriptar la contraseña con crypto-js
-      }else{
-        showModal.value = true;
-      }
-    };
+          console.log('Formulario válido');
+          console.log('Email:', email.value);
+          console.log('Contraseña:', password.value);
+          console.log('Contraseña encriptada:', encryptedPassword);
+          
+        } else {
+          showModal.value = true;
+        }
+      };
 
-    return {
-      email,
-      password,
-      activeField,
-      showPassword,
-      emailIsValid,
-      passwordIsValid,
-      showModal,
-      login,
-      activateField,
-      deactivateField,
-      isActive,
-      togglePasswordVisibility,
-      validateEmail,
-      validatePassword,
-      submitForm,
-    };
-  },
-};
+      return {
+        email,
+        password,
+        activeField,
+        showPassword,
+        emailIsValid,
+        passwordIsValid,
+        showModal,
+        activateField,
+        deactivateField,
+        isActive,
+        togglePasswordVisibility,
+        validateEmail,
+        validatePassword,
+        submitForm,
+      };
+    },
+  };
 </script>
 
 <style scoped>
