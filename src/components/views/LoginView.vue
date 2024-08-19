@@ -38,8 +38,10 @@
       </div>
     </div>
     <ModalComponent :show="showModal" @close="showModal = false">
-      <div v-if="!emailIsValid">Correo electrónico no válido</div>
-      <div v-if="!passwordIsValid">La contraseña debe tener entre 8 y 15 caracteres, al menos una letra mayúscula, un número y un carácter especial</div>
+      <img class="modal-img" src="@/assets/error.png" alt="Logo inmarket">
+      <h1 class="modal-title">¡Datos invalidos!</h1>
+      <div class="error-msg" v-if="!emailIsValid">Correo electrónico no válido</div>
+      <div class="error-msg" v-if="!passwordIsValid">La contraseña debe tener entre 8 y 15 caracteres, al menos una letra mayúscula, un número y un carácter especial</div>
     </ModalComponent>
   </div>
 </template>
@@ -49,9 +51,8 @@ import { ref } from 'vue';
 import ModalComponent from '@/components/ModalComponent.vue';
 
 export default {
-  name: 'LoginView',
-  components: {
-    ModalComponent
+  name: 'LoginView', components: {
+    ModalComponent 
   },
   setup() {
     const email = ref('');
@@ -60,6 +61,7 @@ export default {
     const showPassword = ref(false);
     const emailIsValid = ref(true);
     const passwordIsValid = ref(true);
+    const showModal = ref(false);
 
     const login = () => {
       console.log(email.value);
@@ -90,7 +92,6 @@ export default {
     };
 
     const validatePassword = () => {
-      // Validación de contraseña: 8-15 caracteres, al menos una letra mayúscula, un número y un carácter especial
       const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,15}$/;
       passwordIsValid.value = passwordPattern.test(password.value);
     };
@@ -103,6 +104,8 @@ export default {
         console.log('Formulario válido');
         // Aquí puedes realizar la lógica de inicio de sesión
         // Por ejemplo: enviar los datos al servidor o encriptar la contraseña con crypto-js
+      }else{
+        showModal.value = true;
       }
     };
 
@@ -113,6 +116,7 @@ export default {
       showPassword,
       emailIsValid,
       passwordIsValid,
+      showModal,
       login,
       activateField,
       deactivateField,
@@ -303,5 +307,20 @@ export default {
   padding: 0;
   color: #929292;
   cursor: pointer;
+}
+
+.modal-img{
+  margin: 0;
+  height: 105px;
+}
+
+.modal-title{
+  margin: 10px 0;
+  color: #000a24;
+}
+
+.error-msg{
+  text-align: center;
+  margin: 5px 0;
 }
 </style>
