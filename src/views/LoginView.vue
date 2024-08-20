@@ -15,18 +15,18 @@
             </div>
             <div class="actual-form">
               <div class="input-wrap">
-                <input type="text" class="input-field" v-model="email" 
-                  :class="{ active: isActive('email') || email.length > 0 }" 
-                  @focus="activateField('email')" @blur="deactivateField('email')" required>
-                <label class="label" :class="{ 'has-content': email.length > 0 }">
+                <input type="text" class="input-field" v-model="per_mail" 
+                  :class="{ active: isActive('per_mail') || per_mail.length > 0 }" 
+                  @focus="activateField('per_mail')" @blur="deactivateField('per_mail')" required>
+                <label class="label" :class="{ 'has-content': per_mail.length > 0 }">
                   Correo electrónico
                 </label>
               </div>
               <div class="input-wrap">
-                <input class="input-field" v-model="password" :type="showPassword ? 'text' : 'password'"
-                  :class="{ active: isActive('password') || password.length > 0 }" 
-                  @focus="activateField('password')" @blur="deactivateField('password')" required>
-                <label class="label" :class="{ 'has-content': password.length > 0 }">
+                <input class="input-field" v-model="per_password" :type="showper_Password ? 'text' : 'per_password'"
+                  :class="{ active: isActive('per_password') || per_password.length > 0 }" 
+                  @focus="activateField('per_password')" @blur="deactivateField('per_password')" required>
+                <label class="label" :class="{ 'has-content': per_password.length > 0 }">
                   Contraseña
                 </label>
                 <i class="bi eye-btn" :class="showPassword ? 'bi-eye-slash' : 'bi-eye'" @click="togglePasswordVisibility"></i>
@@ -46,49 +46,41 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue';
 import { useAuthStore } from '@/stores/authStore.js';
-import ModalComponent from '@/components/ModalComponent.vue';
+import ModalComponent from '../components/ModalComponent.vue';
 
-export default {
-  name: 'LoginView', 
-  components: {
-    ModalComponent 
-  },
-  setup() {
-    const authStore = useAuthStore();
-    const {
-      email,
-      password,
-      activeField,
-      showPassword,
-      emailIsValid,
-      passwordIsValid,
-      showModal,
-      activateField,
-      deactivateField,
-      isActive,
-      togglePasswordVisibility,
-      submitForm,
-    } = authStore;
+const authStore = useAuthStore();
+const per_mail = ref('');
+const per_password = ref('');
+const showPassword = ref(false);
+const activeFields = ref({});
 
-    return {
-      email,
-      password,
-      activeField,
-      showPassword,
-      emailIsValid,
-      passwordIsValid,
-      showModal,
-      activateField,
-      deactivateField,
-      isActive,
-      togglePasswordVisibility,
-      submitForm,
-    };
-  },
+const isActive = (field) => {
+  return !!activeFields.value[field];
+};
+
+const activateField = (field) => {
+  activeFields.value[field] = true;
+};
+
+const deactivateField = (field) => {
+  if (!per_mail.value && !per_password.value) {
+    activeFields.value[field] = false;
+  }
+};
+
+const togglePasswordVisibility = () => {
+  showPassword.value = !showPassword.value;
+};
+
+const submitForm = async () => {
+  await authStore.access(per_mail.value, per_password.value);
+  // Lógica para redirección o manejo de errores después del acceso
 };
 </script>
+
 
 
 
