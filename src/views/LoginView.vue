@@ -23,7 +23,7 @@
                 </label>
               </div>
               <div class="input-wrap">
-                <input class="input-field" v-model="per_password" :type="showper_Password ? 'text' : 'per_password'"
+                <input class="input-field" v-model="per_password" :type="showPassword ? 'text' : 'password'"
                   :class="{ active: isActive('per_password') || per_password.length > 0 }" 
                   @focus="activateField('per_password')" @blur="deactivateField('per_password')" required>
                 <label class="label" :class="{ 'has-content': per_password.length > 0 }">
@@ -31,7 +31,7 @@
                 </label>
                 <i class="bi eye-btn" :class="showPassword ? 'bi-eye-slash' : 'bi-eye'" @click="togglePasswordVisibility"></i>
               </div>
-              <input type="submit" class="login-btn" value="Inicia sesión">
+              <input type="submit" class="login-btn" value="Inicia sesión" @click="redirectToLogin">
             </div>
           </form>
         </div>
@@ -48,40 +48,78 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router'; // Importa useRouter
 import { useAuthStore } from '@/stores/authStore.js';
-import ModalComponent from '../components/ModalComponent.vue';
+import CryptoJS from 'crypto-js';
+import ModalComponent from '@/components/ModalComponent.vue';
 
+// Configura el enrutador
+const router = useRouter();
 const authStore = useAuthStore();
+
 const per_mail = ref('');
 const per_password = ref('');
 const showPassword = ref(false);
-const activeFields = ref({});
-
-const isActive = (field) => {
-  return !!activeFields.value[field];
-};
+const activeField = ref(null);
+const emailIsValid = ref(true);
+const passwordIsValid = ref(true);
+const showModal = ref(false);
 
 const activateField = (field) => {
-  activeFields.value[field] = true;
+  activeField.value = field;
 };
 
 const deactivateField = (field) => {
-  if (!per_mail.value && !per_password.value) {
-    activeFields.value[field] = false;
+  if (!per_mail.value && field === 'per_mail' || !per_password.value && field === 'per_password') {
+    activeField.value = null;
   }
+};
+
+const isActive = (field) => {
+  return activeField.value === field;
 };
 
 const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value;
 };
 
+const validateEmail = () => {
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  emailIsValid.value = emailPattern.test(per_mail.value);
+};
+
+const validatePassword = () => {
+  const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,15}$/;
+  passwordIsValid.value = passwordPattern.test(per_password.value);
+};
+
 const submitForm = async () => {
-  await authStore.access(per_mail.value, per_password.value);
-  // Lógica para redirección o manejo de errores después del acceso
+  validateEmail();
+  validatePassword();
+
+  if (emailIsValid.value && passwordIsValid.value) {
+    try {
+      const encryptedPassword = CryptoJS.AES.encrypt(per_password.value, 'your-secret-key').toString();
+
+      await authStore.access(per_mail.value, encryptedPassword);
+
+      // Redirige a la página de inicio después de una autenticación exitosa
+      router.replace('/users');
+
+      console.log('Formulario válido');
+      console.log('Email:', per_mail.value);
+      console.log('Contraseña:', per_password.value);
+      console.log('Contraseña encriptada:', encryptedPassword);
+      
+    } catch (error) {
+      console.error('Error durante el acceso:', error);
+      showModal.value = true;
+    }
+  } else {
+    showModal.value = true;
+  }
 };
 </script>
-
-
 
 
 <style scoped>
