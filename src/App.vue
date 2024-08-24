@@ -27,4 +27,8 @@ export default {
   font-family: 'Poppins', sans-serif;
 }
 
+a{
+  text-decoration: none;
+}
+
 </style>
